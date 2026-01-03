@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from datetime import datetime
 
 class ChildCreate(BaseModel):
     name: str
@@ -17,6 +17,10 @@ class ChildOut(BaseModel):
     name: str
     age: int
     allergies: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: datetime | None
+
 
     class Config:
         from_attributes = True

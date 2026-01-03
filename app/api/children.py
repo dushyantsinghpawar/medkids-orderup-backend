@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.core.deps import get_current_user
 from app.db.session import get_db
@@ -35,10 +36,18 @@ def create_child(
 def list_children(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    limit: int = Query(10, ge=1, le=50),
+    offset: int = Query(0, ge=0),
 ):
     return (
         db.query(Child)
-        .filter(Child.parent_id == current_user.id)
+        .filter(
+            Child.parent_id == current_user.id,
+            Child.deleted_at.is_(None),
+        )
+        .order_by(Child.created_at.desc())
+        .limit(limit)
+        .offset(offset)
         .all()
     )
 
@@ -54,7 +63,8 @@ def update_child(
         db.query(Child)
         .filter(
             Child.id == child_id,
-            Child.parent_id == current_user.id
+            Child.parent_id == current_user.id,
+            Child.deleted_at.is_(None),
         )
         .first()
     )
@@ -62,7 +72,7 @@ def update_child(
     if not child:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Child not found"
+            detail="Child not found",
         )
 
     if data.name is not None:
@@ -87,7 +97,8 @@ def delete_child(
         db.query(Child)
         .filter(
             Child.id == child_id,
-            Child.parent_id == current_user.id
+            Child.parent_id == current_user.id,
+            Child.deleted_at.is_(None),
         )
         .first()
     )
@@ -95,9 +106,37 @@ def delete_child(
     if not child:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Child not found"
+            detail="Child not found",
         )
 
-    db.delete(child)
+    child.deleted_at = datetime.utcnow()
     db.commit()
     return None
+
+
+@router.post("/{child_id}/restore", response_model=ChildOut)
+def restore_child(
+    child_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    child = (
+        db.query(Child)
+        .filter(
+            Child.id == child_id,
+            Child.parent_id == current_user.id,
+            Child.deleted_at.isnot(None),
+        )
+        .first()
+    )
+
+    if not child:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Deleted child not found",
+        )
+
+    child.deleted_at = None
+    db.commit()
+    db.refresh(child)
+    return child
