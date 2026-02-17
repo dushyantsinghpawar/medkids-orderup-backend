@@ -7,6 +7,19 @@
 
 ---
 
+## Screenshots
+
+**Swagger UI — Live API Explorer**  
+![Swagger UI](docs/screenshots/swagger.png)
+
+**Login Screen**  
+![Login](docs/screenshots/login.png)
+
+**Child Profile Dashboard**  
+![Dashboard](docs/screenshots/dashboard.png)
+
+---
+
 ## The Problem
 
 Parents choosing meals for children must simultaneously balance allergies, dietary restrictions, cultural preferences, and age-appropriate nutrition. Most recommendation systems optimize for engagement, not safety.
