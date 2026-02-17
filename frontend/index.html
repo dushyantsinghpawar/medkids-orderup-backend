@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDKids OrderUp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Cormorant:wght@600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app { min-height: 100vh; background: linear-gradient(135deg, #FFF5F0 0%, #FFF9F5 50%, #F0F9FF 100%); }
+
+    /* ── AUTH ── */
+    .auth-container {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem; position: relative; overflow: hidden;
+    }
+    .auth-decoration { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .floating-shape { position: absolute; border-radius: 50%; opacity: 0.15; animation: float 20s infinite ease-in-out; }
+    .shape-1 { width:400px; height:400px; background: linear-gradient(135deg,#FF9B71,#FFB088); top:-10%; left:-5%; }
+    .shape-2 { width:300px; height:300px; background: linear-gradient(135deg,#A8E6CF,#82D4BB); bottom:-5%; right:-3%; animation-delay:-7s; }
+    .shape-3 { width:250px; height:250px; background: linear-gradient(135deg,#FFD9A8,#FFCF8F); top:40%; right:5%; animation-delay:-14s; }
+    @keyframes float {
+      0%,100% { transform: translate(0,0) rotate(0deg) scale(1); }
+      33%      { transform: translate(30px,-30px) rotate(120deg) scale(1.1); }
+      66%      { transform: translate(-20px,20px) rotate(240deg) scale(0.9); }
+    }
+
+    .auth-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 28px; padding: 3rem;
+      max-width: 480px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1);
+      position: relative; z-index: 1;
+      border: 1px solid rgba(255,255,255,0.8);
+      animation: slideUp 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .auth-header { text-align: center; margin-bottom: 2.5rem; }
+    .logo { display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:0.5rem; }
+    .logo h1 {
+      font-family: 'Cormorant', serif; font-size: 2rem; font-weight: 700;
+      background: linear-gradient(135deg,#FF8155,#FF6B47);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .logo-icon { color:#FF8155; width:32px; height:32px; }
+    .tagline { color:#64748B; font-size:0.95rem; margin-top:0.5rem; }
+
+    .auth-form { display:flex; flex-direction:column; gap:1.5rem; }
+    .form-group { display:flex; flex-direction:column; gap:0.5rem; }
+    .form-group label { font-size:0.9rem; font-weight:600; color:#334155; }
+    .form-group input {
+      padding: 0.875rem 1rem;
+      border: 2px solid #E2E8F0; border-radius: 12px;
+      font-size: 1rem; transition: all 0.2s; background: white;
+      font-family: inherit;
+    }
+    .form-group input:focus { outline:none; border-color:#FF8155; box-shadow:0 0 0 3px rgba(255,129,85,0.1); }
+    .form-group small { font-size:0.85rem; color:#94A3B8; }
+
+    .error-message {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.875rem; background:#FEF2F2;
+      border:1px solid #FECACA; border-radius:12px;
+      color:#DC2626; font-size:0.9rem;
+    }
+    .success-message {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.875rem; background:#F0FDF4;
+      border:1px solid #BBF7D0; border-radius:12px;
+      color:#16A34A; font-size:0.9rem;
+    }
+
+    .btn-primary {
+      padding:1rem;
+      background: linear-gradient(135deg,#FF8155,#FF6B47);
+      color:white; border:none; border-radius:12px;
+      font-size:1rem; font-weight:600; cursor:pointer;
+      font-family: inherit;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+      box-shadow: 0 4px 12px rgba(255,129,85,0.3);
+    }
+    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 20px rgba(255,129,85,0.4); }
+    .btn-primary:active:not(:disabled) { transform:translateY(0); }
+    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
+
+    .auth-toggle { margin-top:1rem; text-align:center; }
+    .toggle-button {
+      color:#64748B; background:none; border:none;
+      font-size:0.9rem; cursor:pointer; padding:0.5rem;
+      transition:color 0.2s; font-family:inherit;
+    }
+    .toggle-button:hover { color:#FF8155; }
+
+    /* ── DASHBOARD ── */
+    .dashboard { min-height:100vh; animation:fadeIn 0.5s ease; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+    .dashboard-header {
+      background:white;
+      border-bottom:1px solid rgba(0,0,0,0.06);
+      box-shadow:0 2px 12px rgba(0,0,0,0.04);
+    }
+    .header-content {
+      max-width:1200px; margin:0 auto;
+      padding:1.5rem 2rem;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .logo-section { display:flex; align-items:center; gap:1rem; }
+    .logo-section h1 {
+      font-family:'Cormorant',serif; font-size:1.5rem; font-weight:700;
+      background:linear-gradient(135deg,#FF8155,#FF6B47);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    }
+    .user-email { font-size:0.85rem; color:#94A3B8; margin-top:0.25rem; }
+
+    .btn-logout {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.625rem 1.25rem;
+      background:#F8FAFC; border:1px solid #E2E8F0;
+      border-radius:10px; color:#64748B;
+      font-size:0.9rem; font-weight:500; cursor:pointer;
+      transition:all 0.2s; font-family:inherit;
+    }
+    .btn-logout:hover { background:#F1F5F9; color:#334155; }
+
+    .dashboard-main { max-width:1200px; margin:0 auto; padding:3rem 2rem; }
+
+    .dashboard-top {
+      display:flex; justify-content:space-between; align-items:flex-start;
+      margin-bottom:2rem; flex-wrap:wrap; gap:1.5rem;
+    }
+    .section-header h2 {
+      font-family:'Cormorant',serif; font-size:2.25rem; font-weight:700;
+      color:#1E293B; margin-bottom:0.5rem;
+    }
+    .section-description { color:#64748B; font-size:1rem; }
+
+    .btn-add {
+      display:flex; align-items:center; gap:0.5rem;
+      padding:0.875rem 1.5rem;
+      background:linear-gradient(135deg,#FF8155,#FF6B47);
+      color:white; border:none; border-radius:12px;
+      font-size:0.95rem; font-weight:600; cursor:pointer;
+      font-family:inherit;
+      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+      box-shadow:0 4px 12px rgba(255,129,85,0.3);
+    }
+    .btn-add:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(255,129,85,0.4); }
+
+    /* ── CHILDREN GRID ── */
+    .children-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+      gap:1.5rem;
+      animation:gridFadeIn 0.6s ease;
+    }
+    @keyframes gridFadeIn {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .child-card {
+      background:white; border-radius:20px; padding:1.75rem;
+      box-shadow:0 2px 12px rgba(0,0,0,0.06);
+      border:1px solid rgba(0,0,0,0.04);
+      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+      position:relative; overflow:hidden;
+    }
+    .child-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:4px;
+      background:linear-gradient(90deg,#FF8155,#FFB088);
+      opacity:0; transition:opacity 0.3s;
+    }
+    .child-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.12); }
+    .child-card:hover::before { opacity:1; }
+
+    .child-avatar {
+      width:64px; height:64px; border-radius:50%;
+      background:linear-gradient(135deg,#FFE9E0,#FFD6C8);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:1rem; font-size:2rem;
+    }
+    .child-info h3 { font-size:1.5rem; font-weight:700; color:#1E293B; margin-bottom:0.25rem; }
+    .child-age { color:#64748B; font-size:0.9rem; margin-bottom:1rem; }
+    .child-details { display:flex; flex-direction:column; gap:0.75rem; }
+
+    .detail-section { display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; line-height:1.5; }
+    .detail-label { font-weight:600; color:#475569; white-space:nowrap; }
+    .detail-value { color:#64748B; }
+
+    .allergy-badge {
+      display:inline-block; padding:0.2rem 0.6rem;
+      background:#FEF2F2; color:#DC2626;
+      border-radius:20px; font-size:0.8rem; font-weight:500;
+      margin:0.15rem;
+    }
+    .diet-badge {
+      display:inline-block; padding:0.2rem 0.6rem;
+      background:#F0FDF4; color:#16A34A;
+      border-radius:20px; font-size:0.8rem; font-weight:500;
+      margin:0.15rem;
+    }
+    .dislike-badge {
+      display:inline-block; padding:0.2rem 0.6rem;
+      background:#F8FAFC; color:#64748B;
+      border-radius:20px; font-size:0.8rem; font-weight:500;
+      margin:0.15rem;
+    }
+
+    .child-actions {
+      display:flex; gap:0.5rem;
+      margin-top:1.5rem; padding-top:1.5rem;
+      border-top:1px solid #F1F5F9;
+    }
+    .btn-icon {
+      flex:1; padding:0.625rem;
+      background:#F8FAFC; border:1px solid #E2E8F0;
+      border-radius:10px; color:#64748B; cursor:pointer;
+      transition:all 0.2s;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1rem;
+    }
+    .btn-icon:hover { background:#F1F5F9; color:#334155; border-color:#CBD5E1; }
+    .btn-icon.btn-danger:hover { background:#FEF2F2; color:#DC2626; border-color:#FECACA; }
+
+    .delete-confirm {
+      position:absolute; inset:0;
+      background:rgba(255,255,255,0.98); backdrop-filter:blur(8px);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:1rem; padding:1.5rem; border-radius:20px;
+      animation:slideUp 0.2s ease;
+    }
+    .delete-confirm p { font-weight:600; color:#1E293B; font-size:1.1rem; }
+    .confirm-actions { display:flex; gap:0.75rem; width:100%; }
+    .btn-confirm-delete, .btn-cancel {
+      flex:1; padding:0.75rem; border:none; border-radius:10px;
+      font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit;
+    }
+    .btn-confirm-delete { background:#DC2626; color:white; }
+    .btn-confirm-delete:hover { background:#B91C1C; }
+    .btn-cancel { background:#F1F5F9; color:#64748B; }
+    .btn-cancel:hover { background:#E2E8F0; }
+
+    /* ── EMPTY / LOADING ── */
+    .empty-state {
+      text-align:center; padding:4rem 2rem;
+      background:white; border-radius:20px;
+      border:2px dashed #E2E8F0;
+    }
+    .empty-state h3 { font-size:1.5rem; font-weight:700; color:#1E293B; margin-bottom:0.75rem; margin-top:1.5rem; }
+    .empty-state p { color:#64748B; margin-bottom:2rem; max-width:400px; margin-left:auto; margin-right:auto; }
+
+    .loading-state { text-align:center; padding:4rem 2rem; }
+    .spinner {
+      width:48px; height:48px;
+      border:4px solid #F1F5F9; border-top-color:#FF8155;
+      border-radius:50%; animation:spin 0.8s linear infinite;
+      margin:0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-state p { color:#64748B; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position:fixed; inset:0;
+      background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+      display:flex; align-items:center; justify-content:center;
+      padding:2rem; z-index:1000;
+      animation:fadeIn 0.2s ease;
+    }
+    .modal-content {
+      background:white; border-radius:24px;
+      max-width:560px; width:100%;
+      max-height:90vh; overflow-y:auto;
+      box-shadow:0 24px 48px rgba(0,0,0,0.2);
+      animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    @keyframes scaleIn {
+      from { opacity:0; transform:scale(0.95); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .modal-header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:2rem 2rem 1rem;
+      border-bottom:1px solid #F1F5F9;
+    }
+    .modal-header h2 { font-family:'Cormorant',serif; font-size:1.75rem; font-weight:700; color:#1E293B; }
+    .btn-close {
+      background:none; border:none; font-size:2rem; color:#94A3B8;
+      cursor:pointer; line-height:1; padding:0;
+      width:32px; height:32px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:8px; transition:all 0.2s;
+    }
+    .btn-close:hover { background:#F1F5F9; color:#64748B; }
+
+    .child-form { padding:2rem; display:flex; flex-direction:column; gap:1.5rem; }
+    .modal-actions { display:flex; gap:1rem; margin-top:0.5rem; }
+    .btn-secondary {
+      flex:1; padding:0.875rem;
+      background:#F8FAFC; border:1px solid #E2E8F0;
+      border-radius:12px; color:#64748B;
+      font-size:1rem; font-weight:600; cursor:pointer;
+      transition:all 0.2s; font-family:inherit;
+    }
+    .btn-secondary:hover { background:#F1F5F9; color:#334155; }
+    .modal-actions .btn-primary { flex:1; }
+
+    /* ── COMING SOON ── */
+    .coming-soon-section {
+      margin-top:4rem; padding:3rem;
+      background:linear-gradient(135deg,rgba(255,129,85,0.08),rgba(168,230,207,0.08));
+      border-radius:24px; border:2px dashed rgba(255,129,85,0.2);
+      text-align:center; position:relative; overflow:hidden;
+    }
+    .coming-soon-badge {
+      display:inline-block; padding:0.5rem 1rem;
+      background:linear-gradient(135deg,#FF8155,#FF6B47);
+      color:white; border-radius:20px; font-size:0.85rem;
+      font-weight:600; margin-bottom:1rem;
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+    .coming-soon-section h3 {
+      font-family:'Cormorant',serif; font-size:2rem;
+      font-weight:700; color:#1E293B; margin-bottom:1rem;
+    }
+    .coming-soon-section p { color:#64748B; font-size:1.1rem; max-width:600px; margin:0 auto; line-height:1.7; }
+
+    .hidden { display:none !important; }
+
+    @media (max-width:768px) {
+      .auth-card { padding:2rem; }
+      .dashboard-top { flex-direction:column; align-items:stretch; }
+      .section-header h2 { font-size:1.75rem; }
+      .children-grid { grid-template-columns:1fr; }
+      .header-content { padding:1rem; }
+      .logo-section h1 { font-size:1.25rem; }
+      .dashboard-main { padding:2rem 1rem; }
+      .coming-soon-section { padding:2rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script>
+    const API = 'http://localhost:8000';
+
+    // ── STATE ──
+    let currentUser = null;
+    let token       = localStorage.getItem('token');
+    let children    = [];
+    let isLogin     = true;
+    let editingChild  = null;
+    let showingModal  = false;
+
+    // ── BOOT ──
+    token ? fetchUser() : renderAuth();
+
+    // ── API HELPERS ──
+    async function apiFetch(path, options = {}) {
+      const headers = { 'Content-Type': 'application/json', ...options.headers };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API}${path}`, { ...options, headers });
+
+      if (!res.ok) {
+        let msg = `Error ${res.status}`;
+        try {
+          const body = await res.json();
+          msg = body.detail || JSON.stringify(body);
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      // 204 No Content
+      if (res.status === 204) return null;
+      return res.json();
+    }
+
+    async function fetchUser() {
+      try {
+        currentUser = await apiFetch('/users/me');
+        await fetchChildren();
+        renderDashboard();
+      } catch (_) {
+        logout();
+      }
+    }
+
+    async function fetchChildren() {
+      try {
+        children = await apiFetch('/children');
+      } catch (_) {
+        children = [];
+      }
+    }
+
+    async function doRegister(email, password) {
+      return apiFetch('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+    }
+
+    async function doLogin(email, password) {
+      const data = await apiFetch('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password })
+      });
+      token = data.access_token;
+      localStorage.setItem('token', token);
+    }
+
+    async function doSaveChild(formData, childId) {
+      const payload = { ...formData, age: parseInt(formData.age) };
+      if (childId) {
+        const updated = await apiFetch(`/children/${childId}`, { method: 'PUT', body: JSON.stringify(payload) });
+        children = children.map(c => c.id === updated.id ? updated : c);
+      } else {
+        const created = await apiFetch('/children', { method: 'POST', body: JSON.stringify(payload) });
+        children.push(created);
+      }
+    }
+
+    async function doDeleteChild(childId) {
+      await apiFetch(`/children/${childId}`, { method: 'DELETE' });
+      children = children.filter(c => c.id !== childId);
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      token = null; currentUser = null; children = [];
+      isLogin = true;
+      renderAuth();
+    }
+
+    // ── RENDER: AUTH ──
+    function renderAuth() {
+      document.getElementById('root').innerHTML = `
+        <div class="app">
+          <div class="auth-container">
+            <div class="auth-decoration">
+              <div class="floating-shape shape-1"></div>
+              <div class="floating-shape shape-2"></div>
+              <div class="floating-shape shape-3"></div>
+            </div>
+            <div class="auth-card">
+              <div class="auth-header">
+                <div class="logo">
+                  ${logoSVG('32')}
+                  <h1>MEDKids OrderUp</h1>
+                </div>
+                <p class="tagline">Safe, healthy meals for your little ones</p>
+              </div>
+
+              <form id="authForm" class="auth-form">
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input id="email" type="email" placeholder="parent@example.com" required />
+                </div>
+                <div class="form-group">
+                  <label>Password</label>
+                  <input id="password" type="password" placeholder="••••••••" required />
+                </div>
+                <div id="confirmGroup" class="form-group ${isLogin ? 'hidden' : ''}">
+                  <label>Confirm Password</label>
+                  <input id="confirm" type="password" placeholder="••••••••" />
+                </div>
+                <div id="authMsg" class="hidden"></div>
+                <button type="submit" id="authBtn" class="btn-primary">
+                  ${isLogin ? 'Sign In' : 'Create Account'}
+                </button>
+              </form>
+
+              <div class="auth-toggle">
+                <button id="toggleBtn" class="toggle-button">
+                  ${isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
+      document.getElementById('toggleBtn').addEventListener('click', () => {
+        isLogin = !isLogin;
+        renderAuth();
+      });
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm')?.value;
+      const btn      = document.getElementById('authBtn');
+      const msgDiv   = document.getElementById('authMsg');
+
+      msgDiv.className = 'hidden';
+
+      if (!isLogin && password !== confirm) {
+        showMsg(msgDiv, 'error', 'Passwords do not match');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Please wait…';
+
+      try {
+        if (!isLogin) {
+          await doRegister(email, password);
+          showMsg(msgDiv, 'success', 'Account created! Signing you in…');
+        }
+        await doLogin(email, password);
+        await fetchUser();
+        renderDashboard();
+      } catch (err) {
+        showMsg(msgDiv, 'error', err.message);
+        btn.disabled = false;
+        btn.textContent = isLogin ? 'Sign In' : 'Create Account';
+      }
+    }
+
+    function showMsg(div, type, text) {
+      div.className = type === 'error' ? 'error-message' : 'success-message';
+      div.innerHTML = `${type === 'error' ? alertIcon() : checkIcon()} <span>${text}</span>`;
+    }
+
+    // ── RENDER: DASHBOARD ──
+    function renderDashboard() {
+      const gridHTML = children.length === 0
+        ? `<div class="empty-state">
+             ${userIcon(64)}
+             <h3>No children yet</h3>
+             <p>Add your first child to get personalised meal recommendations</p>
+             <button class="btn-primary" onclick="openModal()">+ Add Your First Child</button>
+           </div>`
+        : `<div class="children-grid">
+             ${children.map(childCard).join('')}
+           </div>`;
+
+      document.getElementById('root').innerHTML = `
+        <div class="app">
+          <div class="dashboard">
+            <header class="dashboard-header">
+              <div class="header-content">
+                <div class="logo-section">
+                  ${logoSVG('28')}
+                  <div>
+                    <h1>MEDKids OrderUp</h1>
+                    <p class="user-email">${currentUser.email}</p>
+                  </div>
+                </div>
+                <button onclick="logout()" class="btn-logout">Sign Out</button>
+              </div>
+            </header>
+
+            <main class="dashboard-main">
+              <div class="dashboard-top">
+                <div class="section-header">
+                  <h2>Your Children</h2>
+                  <p class="section-description">Manage your children's profiles and preferences</p>
+                </div>
+                <button onclick="openModal()" class="btn-add">+ Add Child</button>
+              </div>
+
+              ${gridHTML}
+
+              <div class="coming-soon-section">
+                <div class="coming-soon-badge">Coming Soon</div>
+                <h3>Meal Recommendations</h3>
+                <p>Get personalised, safe meal suggestions based on your children's allergies, preferences, and dietary needs.</p>
+              </div>
+            </main>
+          </div>
+        </div>`;
+
+      if (showingModal) renderModal();
+    }
+
+    function childCard(child) {
+      const badges = (str, cls) =>
+        str ? str.split(',').map(s => s.trim()).filter(Boolean)
+                 .map(s => `<span class="${cls}">${s}</span>`).join('') : '';
+
+      return `
+        <div class="child-card" id="card-${child.id}">
+          <div class="child-avatar">👤</div>
+          <div class="child-info">
+            <h3>${escHtml(child.name)}</h3>
+            <p class="child-age">${child.age} year${child.age !== 1 ? 's' : ''} old</p>
+            <div class="child-details">
+              ${child.allergies ? `
+                <div class="detail-section">
+                  <span class="detail-label">⚠️ Allergies:</span>
+                  <span class="detail-value">${badges(child.allergies, 'allergy-badge')}</span>
+                </div>` : ''}
+              ${child.diet_preferences ? `
+                <div class="detail-section">
+                  <span class="detail-label">🥗 Diet:</span>
+                  <span class="detail-value">${badges(child.diet_preferences, 'diet-badge')}</span>
+                </div>` : ''}
+              ${child.dislikes ? `
+                <div class="detail-section">
+                  <span class="detail-label">👎 Dislikes:</span>
+                  <span class="detail-value">${badges(child.dislikes, 'dislike-badge')}</span>
+                </div>` : ''}
+            </div>
+          </div>
+          <div class="child-actions">
+            <button class="btn-icon" onclick="openModal(${child.id})" title="Edit">✏️ Edit</button>
+            <button class="btn-icon btn-danger" onclick="showDeleteConfirm(${child.id})" title="Delete">🗑️ Delete</button>
+          </div>
+        </div>`;
+    }
+
+    // ── MODAL ──
+    function openModal(childId = null) {
+      editingChild = childId ? children.find(c => c.id === childId) : null;
+      showingModal = true;
+      renderModal();
+    }
+
+    function closeModal() {
+      showingModal = false;
+      editingChild = null;
+      document.querySelector('.modal-overlay')?.remove();
+    }
+
+    function renderModal() {
+      document.querySelector('.modal-overlay')?.remove();
+
+      const el = document.createElement('div');
+      el.className = 'modal-overlay';
+      el.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>${editingChild ? 'Edit Child' : 'Add New Child'}</h2>
+            <button class="btn-close" onclick="closeModal()">×</button>
+          </div>
+          <form id="childForm" class="child-form">
+            <div class="form-group">
+              <label>Child's Name</label>
+              <input id="cName" type="text" placeholder="Emma" value="${escAttr(editingChild?.name)}" required />
+            </div>
+            <div class="form-group">
+              <label>Age</label>
+              <input id="cAge" type="number" min="0" max="18" placeholder="5" value="${editingChild?.age ?? ''}" required />
+            </div>
+            <div class="form-group">
+              <label>Allergies <small style="font-weight:400">(comma-separated, leave blank if none)</small></label>
+              <input id="cAllergies" type="text" placeholder="Peanuts, Shellfish" value="${escAttr(editingChild?.allergies)}" />
+            </div>
+            <div class="form-group">
+              <label>Diet Preferences <small style="font-weight:400">(comma-separated)</small></label>
+              <input id="cDiet" type="text" placeholder="Vegetarian, Gluten-free" value="${escAttr(editingChild?.diet_preferences)}" />
+            </div>
+            <div class="form-group">
+              <label>Dislikes <small style="font-weight:400">(comma-separated)</small></label>
+              <input id="cDislikes" type="text" placeholder="Broccoli, Mushrooms" value="${escAttr(editingChild?.dislikes)}" />
+            </div>
+            <div id="formMsg" class="hidden"></div>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+              <button type="submit" id="saveBtn" class="btn-primary">Save Child</button>
+            </div>
+          </form>
+        </div>`;
+
+      document.body.appendChild(el);
+      el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+      document.getElementById('childForm').addEventListener('submit', handleChildSubmit);
+    }
+
+    async function handleChildSubmit(e) {
+      e.preventDefault();
+      const formData = {
+        name:             document.getElementById('cName').value.trim(),
+        age:              document.getElementById('cAge').value,
+        allergies:        document.getElementById('cAllergies').value.trim(),
+        diet_preferences: document.getElementById('cDiet').value.trim(),
+        dislikes:         document.getElementById('cDislikes').value.trim(),
+      };
+      const btn    = document.getElementById('saveBtn');
+      const msgDiv = document.getElementById('formMsg');
+
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      try {
+        await doSaveChild(formData, editingChild?.id);
+        closeModal();
+        renderDashboard();
+      } catch (err) {
+        showMsg(msgDiv, 'error', err.message);
+        btn.disabled = false;
+        btn.textContent = 'Save Child';
+      }
+    }
+
+    // ── DELETE ──
+    function showDeleteConfirm(childId) {
+      const card  = document.getElementById(`card-${childId}`);
+      const child = children.find(c => c.id === childId);
+      const div   = document.createElement('div');
+      div.className = 'delete-confirm';
+      div.innerHTML = `
+        <p>Delete <strong>${escHtml(child.name)}</strong>?</p>
+        <div class="confirm-actions">
+          <button class="btn-confirm-delete" onclick="confirmDelete(${childId})">Yes, delete</button>
+          <button class="btn-cancel" onclick="this.closest('.delete-confirm').remove()">Cancel</button>
+        </div>`;
+      card.appendChild(div);
+    }
+
+    async function confirmDelete(childId) {
+      try {
+        await doDeleteChild(childId);
+        renderDashboard();
+      } catch (err) {
+        alert('Failed to delete: ' + err.message);
+      }
+    }
+
+    // ── UTILS ──
+    function escHtml(s)  { return (s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function escAttr(s)  { return (s ?? '').replace(/"/g,'&quot;'); }
+    function alertIcon() { return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`; }
+    function checkIcon() { return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`; }
+    function userIcon(s) { return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`; }
+    function logoSVG(s)  { return `<svg class="logo-icon" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>`; }
+  </script>
+</body>
+</html>
