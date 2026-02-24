@@ -1,7 +1,6 @@
 services:
   db:
     image: postgres:15
-    container_name: medkids_postgres
     environment:
       POSTGRES_USER: medkids
       POSTGRES_PASSWORD: medkids
@@ -10,6 +9,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://medkids:medkids@db:5432/medkids
+      SQL_ECHO: "false"
+      ENV: local
+      JWT_SECRET_KEY: dev-secret-change-me
+    depends_on:
+      - db
+    volumes:
+      - .:/app
 
 volumes:
   postgres_data:
