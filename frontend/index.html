@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MEDKids OrderUp</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Cormorant:wght@600;700&display=swap" rel="stylesheet">
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Cormorant:wght@600;700&display=swap" rel="stylesheet" />
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -359,7 +359,13 @@
   <div id="root"></div>
 
   <script>
+    // Same-origin API. Since this page is served at https://medkids.up.railway.app,
+    // all requests will be https://medkids.up.railway.app/<path>
     const API = '';
+
+    // Debug: proves you're running the latest HTML (helps kill caching confusion)
+    console.log("FRONTEND BUILD =", new Date().toISOString());
+    console.log("API BASE =", API, "ORIGIN =", window.location.origin);
 
     // ── STATE ──
     let currentUser = null;
@@ -376,6 +382,7 @@
     async function apiFetch(path, options = {}) {
       const headers = { 'Content-Type': 'application/json', ...options.headers };
       if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(`${API}${path}`, { ...options, headers });
 
       if (!res.ok) {
@@ -404,7 +411,8 @@
 
     async function fetchChildren() {
       try {
-        children = await apiFetch('/children');
+        // Match Swagger: GET/POST uses /children/ (trailing slash)
+        children = await apiFetch('/children/');
       } catch (_) {
         children = [];
       }
@@ -427,17 +435,27 @@
     }
 
     async function doSaveChild(formData, childId) {
-      const payload = { ...formData, age: parseInt(formData.age) };
+      const payload = { ...formData, age: parseInt(formData.age, 10) };
+
       if (childId) {
-        const updated = await apiFetch(`/children/${childId}`, { method: 'PUT', body: JSON.stringify(payload) });
+        // Keep as /children/{id} unless your Swagger shows /children/{id}/
+        const updated = await apiFetch(`/children/${childId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
         children = children.map(c => c.id === updated.id ? updated : c);
       } else {
-        const created = await apiFetch('/children', { method: 'POST', body: JSON.stringify(payload) });
+        // Match Swagger: POST /children/
+        const created = await apiFetch('/children/', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
         children.push(created);
       }
     }
 
     async function doDeleteChild(childId) {
+      // Keep as /children/{id} unless your Swagger shows /children/{id}/
       await apiFetch(`/children/${childId}`, { method: 'DELETE' });
       children = children.filter(c => c.id !== childId);
     }
