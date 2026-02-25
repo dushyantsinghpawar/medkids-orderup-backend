@@ -1,7 +1,28 @@
-.venv/
+# Python
 __pycache__/
+*.pyc
+.venv/
 .env
-.DS_Store
-.vscode/
+
+# FastAPI
 *.log
-alembic/versions/*.pyc
+
+# Node / Frontend
+node_modules/
+dist/
+build/
+.next/
+out/
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+*.pid
+
+# Misc
+coverage/
