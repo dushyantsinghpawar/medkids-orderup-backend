@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:15
-    container_name: medkids_app
+    container_name: medkids_db
     environment:
       POSTGRES_USER: medkids
       POSTGRES_PASSWORD: medkids

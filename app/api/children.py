@@ -24,6 +24,8 @@ def create_child(
         name=data.name,
         age=data.age,
         allergies=data.allergies,
+        diet_preferences=data.diet_preferences,
+        dislikes=data.dislikes,
         parent_id=current_user.id,
     )
     db.add(child)
@@ -81,6 +83,10 @@ def update_child(
         child.age = data.age
     if data.allergies is not None:
         child.allergies = data.allergies
+    if data.diet_preferences is not None:
+        child.diet_preferences = data.diet_preferences
+    if data.dislikes is not None:
+        child.dislikes = data.dislikes
 
     db.commit()
     db.refresh(child)
