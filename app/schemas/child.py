@@ -6,17 +6,23 @@ class ChildCreate(BaseModel):
     name: str
     age: int
     allergies: Optional[str] = None
+    diet_preferences: Optional[str] = None
+    dislikes: Optional[str] = None
 
 class ChildUpdate(BaseModel):
     name: Optional[str] = None
     age: Optional[int] = None
     allergies: Optional[str] = None
+    diet_preferences: Optional[str] = None
+    dislikes: Optional[str] = None
 
 class ChildOut(BaseModel):
     id: int
     name: str
     age: int
     allergies: Optional[str]
+    diet_preferences: Optional[str]
+    dislikes: Optional[str]
     created_at: datetime
     updated_at: datetime
     deleted_at: datetime | None
