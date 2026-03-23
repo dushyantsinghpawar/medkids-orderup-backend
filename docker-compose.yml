@@ -1,10 +1,10 @@
 services:
   db:
     image: postgres:15
-    container_name: medkids_app
+    container_name: medkids_db
     environment:
       POSTGRES_USER: medkids
-      POSTGRES_PASSWORD: medkids
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: medkids
     ports:
       - "5432:5432"
