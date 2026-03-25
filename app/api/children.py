@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.core.deps import get_current_user
-from app.db.session import get_db
+from app.db.database import get_db
 from app.models.child import Child
 from app.models.user import User
 from app.schemas.child import ChildCreate, ChildUpdate, ChildOut

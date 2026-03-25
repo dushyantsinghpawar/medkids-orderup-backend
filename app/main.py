@@ -30,6 +30,11 @@ app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 def root():
     return FileResponse("frontend/index.html")
 
+@app.get("/{full_path:path}")
+def catch_all(full_path: str):
+    """Serve frontend for all non-API routes (SPA routing)"""
+    return FileResponse("frontend/index.html")
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
