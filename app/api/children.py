@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from datetime import datetime
-
 from app.core.deps import get_current_user
 from app.db.session import get_db
 from app.models.child import Child
 from app.models.user import User
 from app.schemas.child import ChildCreate, ChildUpdate, ChildOut
+from app.constants import parse_diet_preferences
 
 router = APIRouter(
     prefix="/children",
     tags=["children"]
 )
-
 
 @router.post("/", response_model=ChildOut)
 def create_child(
@@ -20,6 +19,15 @@ def create_child(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    try:
+        if data.diet_preferences:
+            parse_diet_preferences(data.diet_preferences)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
     child = Child(
         name=data.name,
         age=data.age,
@@ -32,7 +40,6 @@ def create_child(
     db.commit()
     db.refresh(child)
     return child
-
 
 @router.get("/", response_model=list[ChildOut])
 def list_children(
@@ -53,7 +60,6 @@ def list_children(
         .all()
     )
 
-
 @router.put("/{child_id}", response_model=ChildOut)
 def update_child(
     child_id: int,
@@ -70,13 +76,22 @@ def update_child(
         )
         .first()
     )
-
     if not child:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Child not found",
         )
-
+    
+    if data.diet_preferences is not None:
+        try:
+            if data.diet_preferences:
+                parse_diet_preferences(data.diet_preferences)
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e),
+            )
+    
     if data.name is not None:
         child.name = data.name
     if data.age is not None:
@@ -87,11 +102,10 @@ def update_child(
         child.diet_preferences = data.diet_preferences
     if data.dislikes is not None:
         child.dislikes = data.dislikes
-
+    
     db.commit()
     db.refresh(child)
     return child
-
 
 @router.delete("/{child_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_child(
@@ -108,17 +122,14 @@ def delete_child(
         )
         .first()
     )
-
     if not child:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Child not found",
         )
-
     child.deleted_at = datetime.utcnow()
     db.commit()
     return None
-
 
 @router.post("/{child_id}/restore", response_model=ChildOut)
 def restore_child(
@@ -135,13 +146,11 @@ def restore_child(
         )
         .first()
     )
-
     if not child:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Deleted child not found",
         )
-
     child.deleted_at = None
     db.commit()
     db.refresh(child)

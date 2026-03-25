@@ -4,354 +4,948 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MEDKids OrderUp</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Cormorant:wght@600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Cormorant:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg-1: #fff7f2;
+      --bg-2: #fffdfb;
+      --bg-3: #eef8ff;
+      --card: rgba(255, 255, 255, 0.92);
+      --card-solid: #ffffff;
+      --text: #172033;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --line: #e2e8f0;
+      --primary: #ff7a59;
+      --primary-2: #ff6b47;
+      --primary-soft: rgba(255, 122, 89, 0.12);
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --success-border: #bbf7d0;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
+      --radius-xl: 28px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
 
     body {
-      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       -webkit-font-smoothing: antialiased;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 166, 132, 0.22), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(130, 212, 187, 0.2), transparent 25%),
+        linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
     }
 
-    .app { min-height: 100vh; background: linear-gradient(135deg, #FFF5F0 0%, #FFF9F5 50%, #F0F9FF 100%); }
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
 
-    /* ── AUTH ── */
-    .auth-container {
+    .hidden {
+      display: none !important;
+    }
+
+    .app {
       min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 2rem; position: relative; overflow: hidden;
     }
-    .auth-decoration { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-    .floating-shape { position: absolute; border-radius: 50%; opacity: 0.15; animation: float 20s infinite ease-in-out; }
-    .shape-1 { width:400px; height:400px; background: linear-gradient(135deg,#FF9B71,#FFB088); top:-10%; left:-5%; }
-    .shape-2 { width:300px; height:300px; background: linear-gradient(135deg,#A8E6CF,#82D4BB); bottom:-5%; right:-3%; animation-delay:-7s; }
-    .shape-3 { width:250px; height:250px; background: linear-gradient(135deg,#FFD9A8,#FFCF8F); top:40%; right:5%; animation-delay:-14s; }
+
+    .auth-shell {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(4px);
+      opacity: 0.28;
+      animation: float 14s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 320px;
+      height: 320px;
+      background: linear-gradient(135deg, #ffb088, #ff8c66);
+      top: -80px;
+      left: -70px;
+    }
+
+    .orb-2 {
+      width: 240px;
+      height: 240px;
+      background: linear-gradient(135deg, #d0f0df, #9fe0c3);
+      bottom: -40px;
+      right: -40px;
+      animation-delay: -4s;
+    }
+
+    .orb-3 {
+      width: 180px;
+      height: 180px;
+      background: linear-gradient(135deg, #ffe2b5, #ffd18f);
+      top: 18%;
+      right: 8%;
+      animation-delay: -8s;
+    }
+
     @keyframes float {
-      0%,100% { transform: translate(0,0) rotate(0deg) scale(1); }
-      33%      { transform: translate(30px,-30px) rotate(120deg) scale(1.1); }
-      66%      { transform: translate(-20px,20px) rotate(240deg) scale(0.9); }
+      0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+      50% { transform: translateY(-18px) translateX(12px) scale(1.04); }
     }
 
     .auth-card {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 28px; padding: 3rem;
-      max-width: 480px; width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1);
-      position: relative; z-index: 1;
-      border: 1px solid rgba(255,255,255,0.8);
-      animation: slideUp 0.6s cubic-bezier(0.16,1,0.3,1);
-    }
-    @keyframes slideUp {
-      from { opacity:0; transform:translateY(30px); }
-      to   { opacity:1; transform:translateY(0); }
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      padding: 34px;
+      position: relative;
+      z-index: 2;
+      animation: rise 0.45s ease;
     }
 
-    .auth-header { text-align: center; margin-bottom: 2.5rem; }
-    .logo { display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-bottom:0.5rem; }
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .auth-topbar {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+
+    .back-button {
+      border: none;
+      background: transparent;
+      color: var(--primary-2);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 0;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
     .logo h1 {
-      font-family: 'Cormorant', serif; font-size: 2rem; font-weight: 700;
-      background: linear-gradient(135deg,#FF8155,#FF6B47);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      font-family: 'Cormorant', serif;
+      font-size: 2.15rem;
+      line-height: 1;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .logo-icon { color:#FF8155; width:32px; height:32px; }
-    .tagline { color:#64748B; font-size:0.95rem; margin-top:0.5rem; }
 
-    .auth-form { display:flex; flex-direction:column; gap:1.5rem; }
-    .form-group { display:flex; flex-direction:column; gap:0.5rem; }
-    .form-group label { font-size:0.9rem; font-weight:600; color:#334155; }
-    .form-group input {
-      padding: 0.875rem 1rem;
-      border: 2px solid #E2E8F0; border-radius: 12px;
-      font-size: 1rem; transition: all 0.2s; background: white;
-      font-family: inherit;
+    .logo-icon {
+      color: var(--primary);
+      flex-shrink: 0;
     }
-    .form-group input:focus { outline:none; border-color:#FF8155; box-shadow:0 0 0 3px rgba(255,129,85,0.1); }
-    .form-group small { font-size:0.85rem; color:#94A3B8; }
 
-    .error-message {
-      display:flex; align-items:center; gap:0.5rem;
-      padding:0.875rem; background:#FEF2F2;
-      border:1px solid #FECACA; border-radius:12px;
-      color:#DC2626; font-size:0.9rem;
+    .tagline {
+      color: var(--muted);
+      font-size: 0.97rem;
+      line-height: 1.55;
+      max-width: 360px;
+      margin: 0 auto;
     }
-    .success-message {
-      display:flex; align-items:center; gap:0.5rem;
-      padding:0.875rem; background:#F0FDF4;
-      border:1px solid #BBF7D0; border-radius:12px;
-      color:#16A34A; font-size:0.9rem;
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: 100%;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .form-group label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .form-group small {
+      color: var(--muted-2);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 14px;
+      color: var(--text);
+      transition: 0.2s ease;
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+
+    .password-toggle {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 4px 6px;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary-2);
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-icon,
+    .btn-logout,
+    .btn-add,
+    .btn-confirm-delete,
+    .btn-cancel {
+      transition: 0.2s ease;
     }
 
     .btn-primary {
-      padding:1rem;
-      background: linear-gradient(135deg,#FF8155,#FF6B47);
-      color:white; border:none; border-radius:12px;
-      font-size:1rem; font-weight:600; cursor:pointer;
-      font-family: inherit;
-      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
-      box-shadow: 0 4px 12px rgba(255,129,85,0.3);
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(255, 107, 71, 0.22);
     }
-    .btn-primary:hover:not(:disabled) { transform:translateY(-2px); box-shadow:0 8px 20px rgba(255,129,85,0.4); }
-    .btn-primary:active:not(:disabled) { transform:translateY(0); }
-    .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
 
-    .auth-toggle { margin-top:1rem; text-align:center; }
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(255, 107, 71, 0.28);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .auth-links-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      width: 100%;
+    }
+
     .toggle-button {
-      color:#64748B; background:none; border:none;
-      font-size:0.9rem; cursor:pointer; padding:0.5rem;
-      transition:color 0.2s; font-family:inherit;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.93rem;
+      padding: 4px 0;
+      line-height: 1.4;
     }
-    .toggle-button:hover { color:#FF8155; }
 
-    /* ── DASHBOARD ── */
-    .dashboard { min-height:100vh; animation:fadeIn 0.5s ease; }
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .toggle-button:hover {
+      color: var(--primary-2);
+    }
+
+    .auth-links-row .toggle-button:first-child {
+      text-align: left;
+    }
+
+    .auth-links-row .toggle-button:last-child {
+      text-align: right;
+    }
+
+    .message {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .message svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .error-message {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger);
+    }
+
+    .success-message {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 18px 0 8px;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--primary);
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 14px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dashboard {
+      min-height: 100vh;
+      animation: fadeIn 0.35s ease;
+    }
 
     .dashboard-header {
-      background:white;
-      border-bottom:1px solid rgba(0,0,0,0.06);
-      box-shadow:0 2px 12px rgba(0,0,0,0.04);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     }
+
     .header-content {
-      max-width:1200px; margin:0 auto;
-      padding:1.5rem 2rem;
-      display:flex; justify-content:space-between; align-items:center;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
     }
-    .logo-section { display:flex; align-items:center; gap:1rem; }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
     .logo-section h1 {
-      font-family:'Cormorant',serif; font-size:1.5rem; font-weight:700;
-      background:linear-gradient(135deg,#FF8155,#FF6B47);
-      -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+      font-family: 'Cormorant', serif;
+      font-size: 1.7rem;
+      line-height: 1;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
-    .user-email { font-size:0.85rem; color:#94A3B8; margin-top:0.25rem; }
+
+    .user-email {
+      color: var(--muted-2);
+      font-size: 0.86rem;
+      margin-top: 3px;
+      word-break: break-word;
+    }
 
     .btn-logout {
-      display:flex; align-items:center; gap:0.5rem;
-      padding:0.625rem 1.25rem;
-      background:#F8FAFC; border:1px solid #E2E8F0;
-      border-radius:10px; color:#64748B;
-      font-size:0.9rem; font-weight:500; cursor:pointer;
-      transition:all 0.2s; font-family:inherit;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--muted);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
     }
-    .btn-logout:hover { background:#F1F5F9; color:#334155; }
 
-    .dashboard-main { max-width:1200px; margin:0 auto; padding:3rem 2rem; }
+    .btn-logout:hover {
+      background: #f8fafc;
+      color: var(--text);
+    }
 
-    .dashboard-top {
-      display:flex; justify-content:space-between; align-items:flex-start;
-      margin-bottom:2rem; flex-wrap:wrap; gap:1.5rem;
+    .dashboard-main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
     }
-    .section-header h2 {
-      font-family:'Cormorant',serif; font-size:2.25rem; font-weight:700;
-      color:#1E293B; margin-bottom:0.5rem;
+
+    .hero-panel {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 18px;
+      margin-bottom: 28px;
     }
-    .section-description { color:#64748B; font-size:1rem; }
+
+    .hero-card,
+    .mini-card {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card h2 {
+      font-family: 'Cormorant', serif;
+      font-size: 2.15rem;
+      line-height: 1.05;
+      margin-bottom: 10px;
+    }
+
+    .hero-card p,
+    .mini-card p {
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .hero-actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
     .btn-add {
-      display:flex; align-items:center; gap:0.5rem;
-      padding:0.875rem 1.5rem;
-      background:linear-gradient(135deg,#FF8155,#FF6B47);
-      color:white; border:none; border-radius:12px;
-      font-size:0.95rem; font-weight:600; cursor:pointer;
-      font-family:inherit;
-      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
-      box-shadow:0 4px 12px rgba(255,129,85,0.3);
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(255, 107, 71, 0.22);
     }
-    .btn-add:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(255,129,85,0.4); }
 
-    /* ── CHILDREN GRID ── */
-    .children-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
-      gap:1.5rem;
-      animation:gridFadeIn 0.6s ease;
+    .btn-add:hover {
+      transform: translateY(-1px);
     }
-    @keyframes gridFadeIn {
-      from { opacity:0; transform:translateY(20px); }
-      to   { opacity:1; transform:translateY(0); }
+
+    .ghost-pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #ffd7ca;
+      color: var(--primary-2);
+      background: rgba(255,255,255,0.72);
+      border-radius: var(--radius-pill);
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .mini-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .mini-metric {
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .section-row h3 {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+
+    .section-row p {
+      color: var(--muted);
+    }
+
+    .children-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
     }
 
     .child-card {
-      background:white; border-radius:20px; padding:1.75rem;
-      box-shadow:0 2px 12px rgba(0,0,0,0.06);
-      border:1px solid rgba(0,0,0,0.04);
-      transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
-      position:relative; overflow:hidden;
+      background: var(--card-solid);
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: 0.22s ease;
     }
+
+    .child-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
     .child-card::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:4px;
-      background:linear-gradient(90deg,#FF8155,#FFB088);
-      opacity:0; transition:opacity 0.3s;
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #ffb088);
+      opacity: 0;
+      transition: 0.22s ease;
     }
-    .child-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px rgba(0,0,0,0.12); }
-    .child-card:hover::before { opacity:1; }
+
+    .child-card:hover::before {
+      opacity: 1;
+    }
+
+    .child-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
 
     .child-avatar {
-      width:64px; height:64px; border-radius:50%;
-      background:linear-gradient(135deg,#FFE9E0,#FFD6C8);
-      display:flex; align-items:center; justify-content:center;
-      margin-bottom:1rem; font-size:2rem;
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #fff0e8, #ffe0d4);
+      display: grid;
+      place-items: center;
+      font-size: 1.7rem;
+      flex-shrink: 0;
     }
-    .child-info h3 { font-size:1.5rem; font-weight:700; color:#1E293B; margin-bottom:0.25rem; }
-    .child-age { color:#64748B; font-size:0.9rem; margin-bottom:1rem; }
-    .child-details { display:flex; flex-direction:column; gap:0.75rem; }
 
-    .detail-section { display:flex; align-items:flex-start; gap:0.5rem; font-size:0.9rem; line-height:1.5; }
-    .detail-label { font-weight:600; color:#475569; white-space:nowrap; }
-    .detail-value { color:#64748B; }
+    .child-name {
+      min-width: 0;
+    }
 
-    .allergy-badge {
-      display:inline-block; padding:0.2rem 0.6rem;
-      background:#FEF2F2; color:#DC2626;
-      border-radius:20px; font-size:0.8rem; font-weight:500;
-      margin:0.15rem;
+    .child-name h4 {
+      font-size: 1.18rem;
+      margin-bottom: 4px;
+      word-break: break-word;
     }
-    .diet-badge {
-      display:inline-block; padding:0.2rem 0.6rem;
-      background:#F0FDF4; color:#16A34A;
-      border-radius:20px; font-size:0.8rem; font-weight:500;
-      margin:0.15rem;
+
+    .child-age {
+      color: var(--muted);
+      font-size: 0.92rem;
     }
-    .dislike-badge {
-      display:inline-block; padding:0.2rem 0.6rem;
-      background:#F8FAFC; color:#64748B;
-      border-radius:20px; font-size:0.8rem; font-weight:500;
-      margin:0.15rem;
+
+    .child-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .detail-section {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .detail-label {
+      font-size: 0.84rem;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .badge-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-pill);
+      padding: 7px 10px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-allergy {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .badge-diet {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .badge-dislike {
+      background: #f8fafc;
+      color: #475569;
+    }
+
+    .plain-text {
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 0.95rem;
     }
 
     .child-actions {
-      display:flex; gap:0.5rem;
-      margin-top:1.5rem; padding-top:1.5rem;
-      border-top:1px solid #F1F5F9;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid #f1f5f9;
     }
+
     .btn-icon {
-      flex:1; padding:0.625rem;
-      background:#F8FAFC; border:1px solid #E2E8F0;
-      border-radius:10px; color:#64748B; cursor:pointer;
-      transition:all 0.2s;
-      display:flex; align-items:center; justify-content:center;
-      font-size:1rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 12px;
+      padding: 11px 12px;
+      color: #475569;
+      cursor: pointer;
+      font-weight: 600;
     }
-    .btn-icon:hover { background:#F1F5F9; color:#334155; border-color:#CBD5E1; }
-    .btn-icon.btn-danger:hover { background:#FEF2F2; color:#DC2626; border-color:#FECACA; }
+
+    .btn-icon:hover {
+      background: #f8fafc;
+      color: var(--text);
+    }
+
+    .btn-danger:hover {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
 
     .delete-confirm {
-      position:absolute; inset:0;
-      background:rgba(255,255,255,0.98); backdrop-filter:blur(8px);
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:1rem; padding:1.5rem; border-radius:20px;
-      animation:slideUp 0.2s ease;
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+      border-radius: 22px;
+      animation: fadeIn 0.16s ease;
     }
-    .delete-confirm p { font-weight:600; color:#1E293B; font-size:1.1rem; }
-    .confirm-actions { display:flex; gap:0.75rem; width:100%; }
-    .btn-confirm-delete, .btn-cancel {
-      flex:1; padding:0.75rem; border:none; border-radius:10px;
-      font-weight:600; cursor:pointer; transition:all 0.2s; font-family:inherit;
-    }
-    .btn-confirm-delete { background:#DC2626; color:white; }
-    .btn-confirm-delete:hover { background:#B91C1C; }
-    .btn-cancel { background:#F1F5F9; color:#64748B; }
-    .btn-cancel:hover { background:#E2E8F0; }
 
-    /* ── EMPTY / LOADING ── */
-    .empty-state {
-      text-align:center; padding:4rem 2rem;
-      background:white; border-radius:20px;
-      border:2px dashed #E2E8F0;
+    .delete-confirm p {
+      font-weight: 700;
+      line-height: 1.5;
     }
-    .empty-state h3 { font-size:1.5rem; font-weight:700; color:#1E293B; margin-bottom:0.75rem; margin-top:1.5rem; }
-    .empty-state p { color:#64748B; margin-bottom:2rem; max-width:400px; margin-left:auto; margin-right:auto; }
 
-    .loading-state { text-align:center; padding:4rem 2rem; }
-    .spinner {
-      width:48px; height:48px;
-      border:4px solid #F1F5F9; border-top-color:#FF8155;
-      border-radius:50%; animation:spin 0.8s linear infinite;
-      margin:0 auto 1.5rem;
+    .confirm-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
     }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .loading-state p { color:#64748B; }
 
-    /* ── MODAL ── */
-    .modal-overlay {
-      position:fixed; inset:0;
-      background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
-      display:flex; align-items:center; justify-content:center;
-      padding:2rem; z-index:1000;
-      animation:fadeIn 0.2s ease;
+    .btn-confirm-delete {
+      border: none;
+      background: var(--danger);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
     }
-    .modal-content {
-      background:white; border-radius:24px;
-      max-width:560px; width:100%;
-      max-height:90vh; overflow-y:auto;
-      box-shadow:0 24px 48px rgba(0,0,0,0.2);
-      animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1);
-    }
-    @keyframes scaleIn {
-      from { opacity:0; transform:scale(0.95); }
-      to   { opacity:1; transform:scale(1); }
-    }
-    .modal-header {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:2rem 2rem 1rem;
-      border-bottom:1px solid #F1F5F9;
-    }
-    .modal-header h2 { font-family:'Cormorant',serif; font-size:1.75rem; font-weight:700; color:#1E293B; }
-    .btn-close {
-      background:none; border:none; font-size:2rem; color:#94A3B8;
-      cursor:pointer; line-height:1; padding:0;
-      width:32px; height:32px;
-      display:flex; align-items:center; justify-content:center;
-      border-radius:8px; transition:all 0.2s;
-    }
-    .btn-close:hover { background:#F1F5F9; color:#64748B; }
 
-    .child-form { padding:2rem; display:flex; flex-direction:column; gap:1.5rem; }
-    .modal-actions { display:flex; gap:1rem; margin-top:0.5rem; }
+    .btn-confirm-delete:hover {
+      background: #b91c1c;
+    }
+
+    .btn-cancel,
     .btn-secondary {
-      flex:1; padding:0.875rem;
-      background:#F8FAFC; border:1px solid #E2E8F0;
-      border-radius:12px; color:#64748B;
-      font-size:1rem; font-weight:600; cursor:pointer;
-      transition:all 0.2s; font-family:inherit;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #475569;
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
     }
-    .btn-secondary:hover { background:#F1F5F9; color:#334155; }
-    .modal-actions .btn-primary { flex:1; }
 
-    /* ── COMING SOON ── */
+    .btn-cancel:hover,
+    .btn-secondary:hover {
+      background: #f8fafc;
+    }
+
+    .empty-state,
     .coming-soon-section {
-      margin-top:4rem; padding:3rem;
-      background:linear-gradient(135deg,rgba(255,129,85,0.08),rgba(168,230,207,0.08));
-      border-radius:24px; border:2px dashed rgba(255,129,85,0.2);
-      text-align:center; position:relative; overflow:hidden;
+      background: rgba(255,255,255,0.78);
+      border-radius: 24px;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(10px);
     }
+
+    .empty-state {
+      border: 2px dashed #e2e8f0;
+      text-align: center;
+      padding: 48px 24px;
+    }
+
+    .empty-state h3 {
+      font-size: 1.45rem;
+      margin: 14px 0 10px;
+    }
+
+    .empty-state p {
+      color: var(--muted);
+      max-width: 420px;
+      margin: 0 auto 22px;
+      line-height: 1.65;
+    }
+
+    .coming-soon-section {
+      margin-top: 32px;
+      border: 1px solid rgba(255, 122, 89, 0.14);
+      padding: 26px;
+    }
+
     .coming-soon-badge {
-      display:inline-block; padding:0.5rem 1rem;
-      background:linear-gradient(135deg,#FF8155,#FF6B47);
-      color:white; border-radius:20px; font-size:0.85rem;
-      font-weight:600; margin-bottom:1rem;
-      text-transform:uppercase; letter-spacing:0.5px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
     }
+
     .coming-soon-section h3 {
-      font-family:'Cormorant',serif; font-size:2rem;
-      font-weight:700; color:#1E293B; margin-bottom:1rem;
+      font-family: 'Cormorant', serif;
+      font-size: 2rem;
+      margin-bottom: 8px;
     }
-    .coming-soon-section p { color:#64748B; font-size:1.1rem; max-width:600px; margin:0 auto; line-height:1.7; }
 
-    .hidden { display:none !important; }
+    .coming-soon-section p {
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 700px;
+    }
 
-    @media (max-width:768px) {
-      .auth-card { padding:2rem; }
-      .dashboard-top { flex-direction:column; align-items:stretch; }
-      .section-header h2 { font-size:1.75rem; }
-      .children-grid { grid-template-columns:1fr; }
-      .header-content { padding:1rem; }
-      .logo-section h1 { font-size:1.25rem; }
-      .dashboard-main { padding:2rem 1rem; }
-      .coming-soon-section { padding:2rem; }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.42);
+      backdrop-filter: blur(6px);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .modal-content {
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 30px 70px rgba(15, 23, 42, 0.28);
+      animation: rise 0.22s ease;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 22px 22px 14px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .modal-header h2 {
+      font-family: 'Cormorant', serif;
+      font-size: 1.9rem;
+      line-height: 1.1;
+    }
+
+    .btn-close {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      border: none;
+      background: #f8fafc;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.5rem;
+    }
+
+    .btn-close:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .child-form {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 920px) {
+      .hero-panel {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .auth-card {
+        padding: 24px 18px;
+      }
+
+      .logo h1 {
+        font-size: 1.85rem;
+      }
+
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .dashboard-main {
+        padding-top: 24px;
+      }
+
+      .hero-card h2 {
+        font-size: 1.85rem;
+      }
+
+      .children-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-actions,
+      .confirm-actions,
+      .child-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .auth-links-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .auth-links-row .toggle-button:first-child,
+      .auth-links-row .toggle-button:last-child {
+        text-align: center;
+      }
     }
   </style>
 </head>
@@ -359,31 +953,54 @@
   <div id="root"></div>
 
   <script>
-    // Same-origin API. Since this page is served at https://medkids.up.railway.app,
-    // all requests will be https://medkids.up.railway.app/<path>
     const API = '';
 
-    // Debug: proves you're running the latest HTML (helps kill caching confusion)
-    console.log("FRONTEND BUILD =", new Date().toISOString());
-    console.log("API BASE =", API, "ORIGIN =", window.location.origin);
+    const DIET_PREFERENCE_OPTIONS = [
+      { value: '', label: 'Select diet preference' },
+      { value: 'None', label: 'None' },
+      { value: 'Vegetarian', label: 'Vegetarian' },
+      { value: 'Vegan', label: 'Vegan' },
+      { value: 'Eggetarian', label: 'Eggetarian' },
+      { value: 'Pescatarian', label: 'Pescatarian' },
+      { value: 'Halal', label: 'Halal' },
+      { value: 'Kosher', label: 'Kosher' },
+      { value: 'Gluten-Free', label: 'Gluten-Free' },
+      { value: 'Dairy-Free', label: 'Dairy-Free' },
+      { value: 'Nut-Free', label: 'Nut-Free' },
+      { value: 'Low-Sodium', label: 'Low-Sodium' },
+      { value: 'Low-Sugar', label: 'Low-Sugar' }
+    ];
 
-    // ── STATE ──
     let currentUser = null;
-    let token       = localStorage.getItem('token');
-    let children    = [];
-    let isLogin     = true;
-    let editingChild  = null;
-    let showingModal  = false;
+    let token = localStorage.getItem('token');
+    let children = [];
+    let authScreen = 'login';
+    let resetToken = null;
+    let editingChild = null;
+    let showingModal = false;
 
-    // ── BOOT ──
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('token')) {
+      resetToken = params.get('token');
+      authScreen = params.get('screen') === 'verify' ? 'verify' : 'reset';
+    }
+
     token ? fetchUser() : renderAuth();
 
-    // ── API HELPERS ──
     async function apiFetch(path, options = {}) {
-      const headers = { 'Content-Type': 'application/json', ...options.headers };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      };
 
-      const res = await fetch(`${API}${path}`, { ...options, headers });
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API}${path}`, {
+        ...options,
+        headers
+      });
 
       if (!res.ok) {
         let msg = `Error ${res.status}`;
@@ -394,7 +1011,6 @@
         throw new Error(msg);
       }
 
-      // 204 No Content
       if (res.status === 204) return null;
       return res.json();
     }
@@ -411,7 +1027,6 @@
 
     async function fetchChildren() {
       try {
-        // Match Swagger: GET/POST uses /children/ (trailing slash)
         children = await apiFetch('/children/');
       } catch (_) {
         children = [];
@@ -430,22 +1045,45 @@
         method: 'POST',
         body: JSON.stringify({ email, password })
       });
+
       token = data.access_token;
       localStorage.setItem('token', token);
     }
 
+    async function doForgotPassword(email) {
+      return apiFetch('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+    }
+
+    async function doResetPassword(tokenValue, newPassword) {
+      return apiFetch('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenValue, new_password: newPassword })
+      });
+    }
+
+    async function doVerifyEmail(tokenValue) {
+      return apiFetch('/auth/verify-email', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenValue })
+      });
+    }
+
     async function doSaveChild(formData, childId) {
-      const payload = { ...formData, age: parseInt(formData.age, 10) };
+      const payload = {
+        ...formData,
+        age: parseInt(formData.age, 10)
+      };
 
       if (childId) {
-        // Keep as /children/{id} unless your Swagger shows /children/{id}/
         const updated = await apiFetch(`/children/${childId}`, {
           method: 'PUT',
           body: JSON.stringify(payload)
         });
-        children = children.map(c => c.id === updated.id ? updated : c);
+        children = children.map(c => (c.id === updated.id ? updated : c));
       } else {
-        // Match Swagger: POST /children/
         const created = await apiFetch('/children/', {
           method: 'POST',
           body: JSON.stringify(payload)
@@ -455,122 +1093,332 @@
     }
 
     async function doDeleteChild(childId) {
-      // Keep as /children/{id} unless your Swagger shows /children/{id}/
       await apiFetch(`/children/${childId}`, { method: 'DELETE' });
       children = children.filter(c => c.id !== childId);
     }
 
     function logout() {
       localStorage.removeItem('token');
-      token = null; currentUser = null; children = [];
-      isLogin = true;
+      token = null;
+      currentUser = null;
+      children = [];
+      editingChild = null;
+      showingModal = false;
+      authScreen = 'login';
       renderAuth();
     }
 
-    // ── RENDER: AUTH ──
+    function switchAuthScreen(screen) {
+      authScreen = screen;
+      renderAuth();
+    }
+
     function renderAuth() {
+      let content = '';
+
+      if (authScreen === 'login') {
+        content = `
+          <div class="auth-header">
+            <div class="logo">
+              ${logoSVG(34)}
+              <h1>MEDKids OrderUp</h1>
+            </div>
+            <p class="tagline">Safe, healthy meals for your little ones. Sign in to manage child profiles and meal preferences.</p>
+          </div>
+
+          <form id="authForm" class="auth-form">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" placeholder="parent@example.com" autocomplete="email" required />
+            </div>
+
+            <div class="form-group">
+              <div class="form-row">
+                <label for="password">Password</label>
+              </div>
+              <div class="input-wrap">
+                <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('password', this)">Show</button>
+              </div>
+            </div>
+
+            <div id="authMsg" class="hidden"></div>
+
+            <button type="submit" id="authBtn" class="btn-primary">Sign In</button>
+          </form>
+
+          <div class="auth-links-row">
+            <button type="button" class="toggle-button" onclick="switchAuthScreen('register')">
+              Sign up
+            </button>
+            <button type="button" class="toggle-button" onclick="switchAuthScreen('forgot')">
+              Forgot password?
+            </button>
+          </div>
+        `;
+      } else if (authScreen === 'register') {
+        content = `
+          <div class="auth-topbar">
+            <button type="button" class="back-button" onclick="switchAuthScreen('login')">← Back to Sign In</button>
+          </div>
+
+          <div class="auth-header">
+            <div class="logo">
+              ${logoSVG(34)}
+              <h1>MEDKids OrderUp</h1>
+            </div>
+            <p class="tagline">Create your account to start adding child profiles and meal preferences.</p>
+          </div>
+
+          <form id="authForm" class="auth-form">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" placeholder="parent@example.com" autocomplete="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <div class="input-wrap">
+                <input id="password" type="password" placeholder="Create a password" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('password', this)">Show</button>
+              </div>
+              <small>Use at least 8 characters with uppercase, lowercase, number, and special character.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="confirm">Confirm Password</label>
+              <div class="input-wrap">
+                <input id="confirm" type="password" placeholder="Confirm your password" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('confirm', this)">Show</button>
+              </div>
+            </div>
+
+            <div id="authMsg" class="hidden"></div>
+
+            <button type="submit" id="authBtn" class="btn-primary">Create Account</button>
+          </form>
+        `;
+      } else if (authScreen === 'forgot') {
+        content = `
+          <div class="auth-topbar">
+            <button type="button" class="back-button" onclick="switchAuthScreen('login')">← Back to Sign In</button>
+          </div>
+
+          <div class="auth-header">
+            <div class="logo">
+              ${logoSVG(30)}
+              <h1>Reset Password</h1>
+            </div>
+            <p class="tagline">Enter your email and we’ll send you a password reset link.</p>
+          </div>
+
+          <form id="authForm" class="auth-form">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input id="email" type="email" placeholder="parent@example.com" autocomplete="email" required />
+            </div>
+
+            <div id="authMsg" class="hidden"></div>
+
+            <button type="submit" id="authBtn" class="btn-primary">Send Reset Link</button>
+          </form>
+        `;
+      } else if (authScreen === 'reset') {
+        content = `
+          <div class="auth-topbar">
+            <button type="button" class="back-button" onclick="switchAuthScreen('login')">← Back to Sign In</button>
+          </div>
+
+          <div class="auth-header">
+            <div class="logo">
+              ${logoSVG(30)}
+              <h1>Create New Password</h1>
+            </div>
+            <p class="tagline">Enter your new password below.</p>
+          </div>
+
+          <form id="authForm" class="auth-form">
+            <div class="form-group">
+              <label for="password">New Password</label>
+              <div class="input-wrap">
+                <input id="password" type="password" placeholder="Enter new password" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('password', this)">Show</button>
+              </div>
+              <small>Use at least 8 characters with uppercase, lowercase, number, and special character.</small>
+            </div>
+
+            <div class="form-group">
+              <label for="confirm">Confirm Password</label>
+              <div class="input-wrap">
+                <input id="confirm" type="password" placeholder="Confirm new password" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('confirm', this)">Show</button>
+              </div>
+            </div>
+
+            <div id="authMsg" class="hidden"></div>
+
+            <button type="submit" id="authBtn" class="btn-primary">Reset Password</button>
+          </form>
+        `;
+      } else if (authScreen === 'verify') {
+        content = `
+          <div class="auth-header">
+            <div class="logo">
+              ${logoSVG(30)}
+              <h1>Verify Email</h1>
+            </div>
+            <p class="tagline">We’re confirming your email address.</p>
+          </div>
+
+          <div id="authMsg" class="hidden"></div>
+
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p class="tagline">Verifying your email...</p>
+          </div>
+        `;
+      }
+
       document.getElementById('root').innerHTML = `
         <div class="app">
-          <div class="auth-container">
-            <div class="auth-decoration">
-              <div class="floating-shape shape-1"></div>
-              <div class="floating-shape shape-2"></div>
-              <div class="floating-shape shape-3"></div>
-            </div>
+          <div class="auth-shell">
+            <div class="bg-orb orb-1"></div>
+            <div class="bg-orb orb-2"></div>
+            <div class="bg-orb orb-3"></div>
             <div class="auth-card">
-              <div class="auth-header">
-                <div class="logo">
-                  ${logoSVG('32')}
-                  <h1>MEDKids OrderUp</h1>
-                </div>
-                <p class="tagline">Safe, healthy meals for your little ones</p>
-              </div>
-
-              <form id="authForm" class="auth-form">
-                <div class="form-group">
-                  <label>Email Address</label>
-                  <input id="email" type="email" placeholder="parent@example.com" required />
-                </div>
-                <div class="form-group">
-                  <label>Password</label>
-                  <input id="password" type="password" placeholder="••••••••" required />
-                </div>
-                <div id="confirmGroup" class="form-group ${isLogin ? 'hidden' : ''}">
-                  <label>Confirm Password</label>
-                  <input id="confirm" type="password" placeholder="••••••••" />
-                </div>
-                <div id="authMsg" class="hidden"></div>
-                <button type="submit" id="authBtn" class="btn-primary">
-                  ${isLogin ? 'Sign In' : 'Create Account'}
-                </button>
-              </form>
-
-              <div class="auth-toggle">
-                <button id="toggleBtn" class="toggle-button">
-                  ${isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-                </button>
-              </div>
+              ${content}
             </div>
           </div>
-        </div>`;
+        </div>
+      `;
 
-      document.getElementById('authForm').addEventListener('submit', handleAuthSubmit);
-      document.getElementById('toggleBtn').addEventListener('click', () => {
-        isLogin = !isLogin;
-        renderAuth();
-      });
+      if (authScreen === 'verify') {
+        handleEmailVerification();
+      } else {
+        document.getElementById('authForm')?.addEventListener('submit', handleAuthSubmit);
+      }
     }
 
     async function handleAuthSubmit(e) {
       e.preventDefault();
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const confirm  = document.getElementById('confirm')?.value;
-      const btn      = document.getElementById('authBtn');
-      const msgDiv   = document.getElementById('authMsg');
+
+      const email = document.getElementById('email')?.value.trim() || '';
+      const password = document.getElementById('password')?.value || '';
+      const confirm = document.getElementById('confirm')?.value || '';
+      const btn = document.getElementById('authBtn');
+      const msgDiv = document.getElementById('authMsg');
+
+      if (!msgDiv || !btn) return;
 
       msgDiv.className = 'hidden';
+      msgDiv.innerHTML = '';
 
-      if (!isLogin && password !== confirm) {
-        showMsg(msgDiv, 'error', 'Passwords do not match');
+      if (authScreen === 'reset') {
+        if (password !== confirm) {
+          showMsg(msgDiv, 'error', 'Passwords do not match.');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Resetting...';
+
+        try {
+          await doResetPassword(resetToken, password);
+          showMsg(msgDiv, 'success', 'Password reset successfully. Redirecting to sign in...');
+          setTimeout(() => switchAuthScreen('login'), 1800);
+        } catch (err) {
+          showMsg(msgDiv, 'error', err.message);
+          btn.disabled = false;
+          btn.textContent = 'Reset Password';
+        }
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'Please wait…';
+      if (authScreen === 'forgot') {
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
 
-      try {
-        if (!isLogin) {
-          await doRegister(email, password);
-          showMsg(msgDiv, 'success', 'Account created! Signing you in…');
+        try {
+          await doForgotPassword(email);
+          showMsg(msgDiv, 'success', 'Check your email for a reset link.');
+          setTimeout(() => switchAuthScreen('login'), 2400);
+        } catch (err) {
+          showMsg(msgDiv, 'error', err.message);
+          btn.disabled = false;
+          btn.textContent = 'Send Reset Link';
         }
-        await doLogin(email, password);
-        await fetchUser();
-        renderDashboard();
-      } catch (err) {
-        showMsg(msgDiv, 'error', err.message);
-        btn.disabled = false;
-        btn.textContent = isLogin ? 'Sign In' : 'Create Account';
+        return;
+      }
+
+      if (authScreen === 'login') {
+        btn.disabled = true;
+        btn.textContent = 'Signing in...';
+
+        try {
+          await doLogin(email, password);
+          await fetchUser();
+        } catch (err) {
+          showMsg(msgDiv, 'error', err.message);
+          btn.disabled = false;
+          btn.textContent = 'Sign In';
+        }
+        return;
+      }
+
+      if (authScreen === 'register') {
+        if (password !== confirm) {
+          showMsg(msgDiv, 'error', 'Passwords do not match.');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Creating account...';
+
+        try {
+          await doRegister(email, password);
+          showMsg(msgDiv, 'success', 'Account created successfully. Signing you in...');
+          await doLogin(email, password);
+          await fetchUser();
+        } catch (err) {
+          showMsg(msgDiv, 'error', err.message);
+          btn.disabled = false;
+          btn.textContent = 'Create Account';
+        }
       }
     }
 
-    function showMsg(div, type, text) {
-      div.className = type === 'error' ? 'error-message' : 'success-message';
-      div.innerHTML = `${type === 'error' ? alertIcon() : checkIcon()} <span>${text}</span>`;
+    async function handleEmailVerification() {
+      const msgDiv = document.getElementById('authMsg');
+      if (!msgDiv) return;
+
+      try {
+        await doVerifyEmail(resetToken);
+        msgDiv.className = 'message success-message';
+        msgDiv.innerHTML = `${checkIcon()}<span>Email verified successfully. Redirecting to login...</span>`;
+        setTimeout(() => switchAuthScreen('login'), 1800);
+      } catch (err) {
+        msgDiv.className = 'message error-message';
+        msgDiv.innerHTML = `${alertIcon()}<span>${escHtml(String(err.message || 'Verification failed'))}</span>`;
+      }
     }
 
-    // ── RENDER: DASHBOARD ──
     function renderDashboard() {
-      const gridHTML = children.length === 0
-        ? `<div class="empty-state">
-             ${userIcon(64)}
-             <h3>No children yet</h3>
-             <p>Add your first child to get personalised meal recommendations</p>
-             <button class="btn-primary" onclick="openModal()">+ Add Your First Child</button>
-           </div>`
-        : `<div class="children-grid">
-             ${children.map(childCard).join('')}
-           </div>`;
+      const childCount = children.length;
+
+      const gridHTML = childCount === 0
+        ? `
+          <div class="empty-state">
+            ${userIcon(64)}
+            <h3>No children added yet</h3>
+            <p>Add your first child to start managing allergies, dislikes, and diet preferences in one place.</p>
+            <button class="btn-primary" onclick="openModal()">+ Add Your First Child</button>
+          </div>
+        `
+        : `
+          <div class="children-grid">
+            ${children.map(childCard).join('')}
+          </div>
+        `;
 
       document.getElementById('root').innerHTML = `
         <div class="app">
@@ -578,76 +1426,118 @@
             <header class="dashboard-header">
               <div class="header-content">
                 <div class="logo-section">
-                  ${logoSVG('28')}
+                  ${logoSVG(30)}
                   <div>
                     <h1>MEDKids OrderUp</h1>
-                    <p class="user-email">${currentUser.email}</p>
+                    <p class="user-email">${escHtml(currentUser?.email || '')}</p>
                   </div>
                 </div>
-                <button onclick="logout()" class="btn-logout">Sign Out</button>
+
+                <button class="btn-logout" onclick="logout()">Sign Out</button>
               </div>
             </header>
 
             <main class="dashboard-main">
-              <div class="dashboard-top">
-                <div class="section-header">
-                  <h2>Your Children</h2>
-                  <p class="section-description">Manage your children's profiles and preferences</p>
+              <section class="hero-panel">
+                <div class="hero-card">
+                  <h2>Welcome back</h2>
+                  <p>Manage your children’s food preferences, allergies, and dietary needs from one clean dashboard.</p>
+
+                  <div class="hero-actions">
+                    <button class="btn-add" onclick="openModal()">+ Add Child</button>
+                    <div class="ghost-pill">${childCount} ${childCount === 1 ? 'profile' : 'profiles'} saved</div>
+                  </div>
                 </div>
-                <button onclick="openModal()" class="btn-add">+ Add Child</button>
-              </div>
 
-              ${gridHTML}
+                <div class="mini-card">
+                  <h3>What’s next</h3>
+                  <div class="mini-metric">Meal AI</div>
+                  <p>Recommendation flows can plug into this dashboard later using the child profile data you’re already collecting.</p>
+                </div>
+              </section>
 
-              <div class="coming-soon-section">
+              <section>
+                <div class="section-row">
+                  <div>
+                    <h3>Your Children</h3>
+                    <p>View and update all saved profiles here.</p>
+                  </div>
+                </div>
+
+                ${gridHTML}
+              </section>
+
+              <section class="coming-soon-section">
                 <div class="coming-soon-badge">Coming Soon</div>
                 <h3>Meal Recommendations</h3>
-                <p>Get personalised, safe meal suggestions based on your children's allergies, preferences, and dietary needs.</p>
-              </div>
+                <p>Get personalised meal suggestions based on allergies, dislikes, and dietary preferences so parents can make safer, faster choices.</p>
+              </section>
             </main>
           </div>
-        </div>`;
+        </div>
+      `;
 
       if (showingModal) renderModal();
     }
 
     function childCard(child) {
-      const badges = (str, cls) =>
-        str ? str.split(',').map(s => s.trim()).filter(Boolean)
-                 .map(s => `<span class="${cls}">${s}</span>`).join('') : '';
+      const allergyBadges = renderBadges(child.allergies, 'badge badge-allergy');
+      const dietBadges = renderBadges(child.diet_preferences, 'badge badge-diet');
+      const dislikeBadges = renderBadges(child.dislikes, 'badge badge-dislike');
 
       return `
         <div class="child-card" id="card-${child.id}">
-          <div class="child-avatar">👤</div>
-          <div class="child-info">
-            <h3>${escHtml(child.name)}</h3>
-            <p class="child-age">${child.age} year${child.age !== 1 ? 's' : ''} old</p>
-            <div class="child-details">
-              ${child.allergies ? `
-                <div class="detail-section">
-                  <span class="detail-label">⚠️ Allergies:</span>
-                  <span class="detail-value">${badges(child.allergies, 'allergy-badge')}</span>
-                </div>` : ''}
-              ${child.diet_preferences ? `
-                <div class="detail-section">
-                  <span class="detail-label">🥗 Diet:</span>
-                  <span class="detail-value">${badges(child.diet_preferences, 'diet-badge')}</span>
-                </div>` : ''}
-              ${child.dislikes ? `
-                <div class="detail-section">
-                  <span class="detail-label">👎 Dislikes:</span>
-                  <span class="detail-value">${badges(child.dislikes, 'dislike-badge')}</span>
-                </div>` : ''}
+          <div class="child-head">
+            <div class="child-avatar">👤</div>
+            <div class="child-name">
+              <h4>${escHtml(child.name)}</h4>
+              <p class="child-age">${Number(child.age)} year${Number(child.age) !== 1 ? 's' : ''} old</p>
             </div>
           </div>
-          <div class="child-actions">
-            <button class="btn-icon" onclick="openModal(${child.id})" title="Edit">✏️ Edit</button>
-            <button class="btn-icon btn-danger" onclick="showDeleteConfirm(${child.id})" title="Delete">🗑️ Delete</button>
+
+          <div class="child-details">
+            <div class="detail-section">
+              <div class="detail-label">Allergies</div>
+              ${allergyBadges ? `<div class="badge-wrap">${allergyBadges}</div>` : `<div class="plain-text">None listed</div>`}
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-label">Diet Preference</div>
+              ${dietBadges ? `<div class="badge-wrap">${dietBadges}</div>` : `<div class="plain-text">None listed</div>`}
+            </div>
+
+            <div class="detail-section">
+              <div class="detail-label">Dislikes</div>
+              ${dislikeBadges ? `<div class="badge-wrap">${dislikeBadges}</div>` : `<div class="plain-text">None listed</div>`}
+            </div>
           </div>
-        </div>`;
+
+          <div class="child-actions">
+            <button class="btn-icon" onclick="openModal(${child.id})">✏️ Edit</button>
+            <button class="btn-icon btn-danger" onclick="showDeleteConfirm(${child.id})">🗑️ Delete</button>
+          </div>
+        </div>
+      `;
     }
 
-    // ── MODAL ──
+    function renderBadges(str, cls) {
+      if (!str) return '';
+      return String(str)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => `<span class="${cls}">${escHtml(s)}</span>`)
+        .join('');
+    }
+
+    function renderDietOptions(selectedValue = '') {
+      return DIET_PREFERENCE_OPTIONS.map(option => `
+        <option value="${escAttr(option.value)}" ${option.value === String(selectedValue || '') ? 'selected' : ''}>
+          ${escHtml(option.label)}
+        </option>
+      `).join('');
+    }
+
     function openModal(childId = null) {
       editingChild = childId ? children.find(c => c.id === childId) : null;
       showingModal = true;
@@ -669,56 +1559,85 @@
         <div class="modal-content">
           <div class="modal-header">
             <h2>${editingChild ? 'Edit Child' : 'Add New Child'}</h2>
-            <button class="btn-close" onclick="closeModal()">×</button>
+            <button class="btn-close" type="button" onclick="closeModal()">×</button>
           </div>
+
           <form id="childForm" class="child-form">
             <div class="form-group">
-              <label>Child's Name</label>
+              <label for="cName">Child's Name</label>
               <input id="cName" type="text" placeholder="Emma" value="${escAttr(editingChild?.name)}" required />
             </div>
+
             <div class="form-group">
-              <label>Age</label>
+              <label for="cAge">Age</label>
               <input id="cAge" type="number" min="0" max="18" placeholder="5" value="${editingChild?.age ?? ''}" required />
             </div>
+
             <div class="form-group">
-              <label>Allergies <small style="font-weight:400">(comma-separated, leave blank if none)</small></label>
+              <label for="cAllergies">Allergies</label>
               <input id="cAllergies" type="text" placeholder="Peanuts, Shellfish" value="${escAttr(editingChild?.allergies)}" />
+              <small>Comma-separated. Leave blank if none.</small>
             </div>
+
             <div class="form-group">
-              <label>Diet Preferences <small style="font-weight:400">(comma-separated)</small></label>
-              <input id="cDiet" type="text" placeholder="Vegetarian, Gluten-free" value="${escAttr(editingChild?.diet_preferences)}" />
+              <label for="cDiet">Diet Preference</label>
+              <select id="cDiet" required>
+                ${renderDietOptions(editingChild?.diet_preferences || '')}
+              </select>
+              <small>Select one valid diet preference from the list.</small>
             </div>
+
             <div class="form-group">
-              <label>Dislikes <small style="font-weight:400">(comma-separated)</small></label>
+              <label for="cDislikes">Dislikes</label>
               <input id="cDislikes" type="text" placeholder="Broccoli, Mushrooms" value="${escAttr(editingChild?.dislikes)}" />
+              <small>Comma-separated.</small>
             </div>
+
             <div id="formMsg" class="hidden"></div>
+
             <div class="modal-actions">
               <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
               <button type="submit" id="saveBtn" class="btn-primary">Save Child</button>
             </div>
           </form>
-        </div>`;
+        </div>
+      `;
 
       document.body.appendChild(el);
-      el.addEventListener('click', e => { if (e.target === el) closeModal(); });
-      document.getElementById('childForm').addEventListener('submit', handleChildSubmit);
+
+      el.addEventListener('click', (e) => {
+        if (e.target === el) closeModal();
+      });
+
+      document.getElementById('childForm')?.addEventListener('submit', handleChildSubmit);
     }
 
     async function handleChildSubmit(e) {
       e.preventDefault();
+
       const formData = {
-        name:             document.getElementById('cName').value.trim(),
-        age:              document.getElementById('cAge').value,
-        allergies:        document.getElementById('cAllergies').value.trim(),
-        diet_preferences: document.getElementById('cDiet').value.trim(),
-        dislikes:         document.getElementById('cDislikes').value.trim(),
+        name: document.getElementById('cName')?.value.trim() || '',
+        age: document.getElementById('cAge')?.value || '',
+        allergies: document.getElementById('cAllergies')?.value.trim() || '',
+        diet_preferences: document.getElementById('cDiet')?.value || '',
+        dislikes: document.getElementById('cDislikes')?.value.trim() || ''
       };
-      const btn    = document.getElementById('saveBtn');
+
+      const btn = document.getElementById('saveBtn');
       const msgDiv = document.getElementById('formMsg');
 
+      if (!btn || !msgDiv) return;
+
+      msgDiv.className = 'hidden';
+      msgDiv.innerHTML = '';
+
+      if (!formData.diet_preferences) {
+        showMsg(msgDiv, 'error', 'Please select a valid diet preference.');
+        return;
+      }
+
       btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.textContent = 'Saving...';
 
       try {
         await doSaveChild(formData, editingChild?.id);
@@ -731,18 +1650,24 @@
       }
     }
 
-    // ── DELETE ──
     function showDeleteConfirm(childId) {
-      const card  = document.getElementById(`card-${childId}`);
+      document.querySelectorAll('.delete-confirm').forEach(el => el.remove());
+
+      const card = document.getElementById(`card-${childId}`);
       const child = children.find(c => c.id === childId);
-      const div   = document.createElement('div');
+
+      if (!card || !child) return;
+
+      const div = document.createElement('div');
       div.className = 'delete-confirm';
       div.innerHTML = `
         <p>Delete <strong>${escHtml(child.name)}</strong>?</p>
         <div class="confirm-actions">
           <button class="btn-confirm-delete" onclick="confirmDelete(${childId})">Yes, delete</button>
           <button class="btn-cancel" onclick="this.closest('.delete-confirm').remove()">Cancel</button>
-        </div>`;
+        </div>
+      `;
+
       card.appendChild(div);
     }
 
@@ -751,17 +1676,84 @@
         await doDeleteChild(childId);
         renderDashboard();
       } catch (err) {
-        alert('Failed to delete: ' + err.message);
+        alert(`Failed to delete: ${err.message}`);
       }
     }
 
-    // ── UTILS ──
-    function escHtml(s)  { return (s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    function escAttr(s)  { return (s ?? '').replace(/"/g,'&quot;'); }
-    function alertIcon() { return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`; }
-    function checkIcon() { return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`; }
-    function userIcon(s) { return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`; }
-    function logoSVG(s)  { return `<svg class="logo-icon" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"/></svg>`; }
+    function showMsg(div, type, text) {
+      if (!div) return;
+
+      div.className = `message ${type === 'error' ? 'error-message' : 'success-message'}`;
+      div.innerHTML = `
+        ${type === 'error' ? alertIcon() : checkIcon()}
+        <span>${escHtml(String(text ?? ''))}</span>
+      `;
+    }
+
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input || !btn) return;
+
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      btn.textContent = isPassword ? 'Hide' : 'Show';
+      btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    }
+
+    function escHtml(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escAttr(s) {
+      return String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function alertIcon() {
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      `;
+    }
+
+    function checkIcon() {
+      return `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      `;
+    }
+
+    function userIcon(size = 24) {
+      return `
+        <svg width="${Number(size)}" height="${Number(size)}" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="2" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      `;
+    }
+
+    function logoSVG(size = 28) {
+      return `
+        <svg class="logo-icon" width="${Number(size)}" height="${Number(size)}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 21s-6.8-4.35-9.2-8.38C.8 9.29 2.07 5.5 5.74 4.47c2.2-.62 4.1.14 5.26 1.72 1.16-1.58 3.06-2.34 5.26-1.72 3.67 1.03 4.94 4.82 2.94 8.15C18.8 16.65 12 21 12 21Z"></path>
+          <path d="M9 12h6"></path>
+          <path d="M12 9v6"></path>
+        </svg>
+      `;
+    }
   </script>
 </body>
 </html>
