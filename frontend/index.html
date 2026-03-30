@@ -987,6 +987,26 @@
 
     token ? fetchUser() : renderAuth();
 
+    /** Turn FastAPI/Pydantic error payloads into a single user-visible string. */
+    function formatFastApiErrorDetail(detail) {
+      if (detail == null) return '';
+      if (typeof detail === 'string') return detail;
+      if (Array.isArray(detail)) {
+        return detail
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            if (item && typeof item.msg === 'string') {
+              return item.msg.replace(/^Value error,\s*/i, '').trim();
+            }
+            return '';
+          })
+          .filter(Boolean)
+          .join(' ');
+      }
+      if (typeof detail === 'object' && detail.msg) return String(detail.msg);
+      return '';
+    }
+
     async function apiFetch(path, options = {}) {
       const headers = {
         'Content-Type': 'application/json',
@@ -1006,7 +1026,8 @@
         let msg = `Error ${res.status}`;
         try {
           const body = await res.json();
-          msg = body.detail || JSON.stringify(body);
+          const fromDetail = formatFastApiErrorDetail(body.detail);
+          msg = fromDetail || body.message || JSON.stringify(body);
         } catch (_) {}
         throw new Error(msg);
       }
