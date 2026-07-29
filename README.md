@@ -1,21 +1,31 @@
-# MEDKids OrderUp
+# MedKids OrderUp
 
-**A backend-first platform for structured child nutrition preference management and safe meal filtering — built correctness-first, intelligence later.**
+**A backend-first platform for structured child nutrition preference management and safe meal filtering - built correctness-first, intelligence later.**
 
-> This system does not cook, deliver, or currently recommend meals.  
+> This system does not cook, deliver, or currently recommend meals.
 > It builds the infrastructure required to do so safely.
+
+---
+
+## About This Repository
+
+This is an MVP replica of the MedKids OrderUp backend I built and led at Rebecca Everlene Trust Company, rebuilt independently to demo the system's architecture to clients and stakeholders. The production codebase is employer-owned and private.
+
+The production system this replica is based on spans 21 REST endpoints, holds 92% line / 84% branch test coverage on the server, runs a Python AI service at 100% pytest coverage, rotates JWTs on 15-minute access / 7-day refresh intervals, and normalizes allergy input through an engine covering 11 canonical allergens with a ~180-entry synonym map.
+
+This replica reproduces the foundation those features stand on: multi-tenant data isolation enforced at the query level, JWT authentication, migration-safe schema evolution, and stable API contracts. It is intentionally scoped down and rebuilt on a different stack - FastAPI and PostgreSQL here, versus the production system's Node/Express API and FastAPI AI microservice over MongoDB Atlas. The sections below describe exactly what is and isn't here.
 
 ---
 
 ## Screenshots
 
-**Swagger UI — Live API Explorer**  
+**Swagger UI - Live API Explorer**
 ![Swagger UI](docs/screenshots/swagger.png)
 
-**Login Screen**  
+**Login Screen**
 ![Login](docs/screenshots/login.png)
 
-**Child Profile Dashboard**  
+**Child Profile Dashboard**
 ![Dashboard](docs/screenshots/dashboard.png)
 
 ---
@@ -24,14 +34,14 @@
 
 Parents choosing meals for children must simultaneously balance allergies, dietary restrictions, cultural preferences, and age-appropriate nutrition. Most recommendation systems optimize for engagement, not safety.
 
-Before any AI model can operate, three guarantees must hold:
+Before any AI model can operate, these guarantees must hold:
 
-- No cross-family data exposure — ever
+- No cross-family data exposure - ever
 - Dietary constraints stored with full fidelity
 - Every decision traceable to its inputs
 - API contracts stable enough to build on
 
-MEDKids OrderUp implements the safety layer first. The intelligence comes later, and only once the foundation is solid.
+MedKids OrderUp implements the safety layer first. The intelligence comes later, and only once the foundation is solid.
 
 ---
 
@@ -53,14 +63,14 @@ flowchart TD
         J -->|Bearer token| B
     end
 
-    subgraph Future Phases
+    subgraph Production System Scope
         K[Meal Catalog]
         L[Allergy Filter Engine]
         M[Recommendation Model]
         K --> L --> M
     end
 
-    F -.->|Phase 2| K
+    F -.->|not in this replica| K
 ```
 
 ---
@@ -89,44 +99,32 @@ sequenceDiagram
 
 ---
 
-## Development Roadmap
-
-```mermaid
-flowchart LR
-    P1[Phase 1\nData Integrity\nCurrent] --> P2[Phase 2\nMeal Catalog\n+ Filtering]
-    P2 --> P3[Phase 3\nRecommendation\nEngine]
-    P3 --> P4[Phase 4\nExternal Ordering\nIntegrations]
-
-    style P1 fill:#1a1a2e,color:#e0e0e0,stroke:#4f8ef7
-    style P2 fill:#16213e,color:#a0a0a0,stroke:#333
-    style P3 fill:#16213e,color:#a0a0a0,stroke:#333
-    style P4 fill:#16213e,color:#a0a0a0,stroke:#333
-```
-
----
-
 ## Current Capabilities
 
 ### Authentication
+
 - User registration and login
 - JWT bearer tokens
 - Password hashing with bcrypt
 
 ### Child Profile Management
+
 - Create, read, update, and delete child profiles
 - Storage of allergies, dietary constraints, and dislikes
 - Parent ownership enforced at the query level
 - Soft delete to prevent accidental data loss
 
 ### API Guarantees
-- All child endpoints scoped to the authenticated parent — no exceptions
+
+- All child endpoints scoped to the authenticated parent - no exceptions
 - Pydantic validation on all inputs
 - Consistent HTTP error responses
 
 ### Frontend
+
 - Login and child management UI
 - Communicates directly with backend APIs
-- Stateless — all logic lives in the backend
+- Stateless - all logic lives in the backend
 
 ---
 
@@ -154,35 +152,35 @@ Child
 └── updated_at
 ```
 
-One parent owns many children. Cross-parent access is impossible by design — not by convention.
+One parent owns many children. Cross-parent access is impossible by design - not by convention.
 
 ---
 
 ## Security Model
 
-**Authentication** — Bearer JWTs, secret stored in environment variables only.
+**Authentication** - Bearer JWTs, secret stored in environment variables only.
 
-**Authorization** — Every child query is filtered by `parent_id` extracted from the token. There is no mechanism to retrieve another parent's data.
+**Authorization** - Every child query is filtered by `parent_id` extracted from the token. There is no mechanism to retrieve another parent's data.
 
-**Data Protection** — All passwords hashed with bcrypt. Inputs validated before they touch the database. Soft delete ensures records are recoverable before permanent removal.
+**Data Protection** - All passwords hashed with bcrypt. Inputs validated before they touch the database. Soft delete ensures records are recoverable before permanent removal.
 
-**Planned Hardening** — Refresh tokens, rate limiting, audit logs, role separation.
+**In the production system** - Rotating JWTs (15-minute access / 7-day refresh), bcrypt at 12 salt rounds, and allergen input normalization before storage.
 
 ---
 
 ## Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Python 3.12 |
-| API Framework | FastAPI |
-| Database | PostgreSQL |
-| ORM | SQLAlchemy |
-| Migrations | Alembic |
-| Auth | JWT via python-jose + bcrypt |
-| Frontend | Vanilla JavaScript, HTML/CSS |
-| Infrastructure | Docker Compose |
-| API Docs | OpenAPI / Swagger |
+| Layer          | Technology                   |
+| -------------- | ---------------------------- |
+| Language       | Python 3.12                  |
+| API Framework  | FastAPI                      |
+| Database       | PostgreSQL                   |
+| ORM            | SQLAlchemy                   |
+| Migrations     | Alembic                      |
+| Auth           | JWT via python-jose + bcrypt |
+| Frontend       | Vanilla JavaScript, HTML/CSS |
+| Infrastructure | Docker Compose               |
+| API Docs       | OpenAPI / Swagger            |
 
 ---
 
@@ -202,6 +200,8 @@ Children  (all require Authorization: Bearer <token>)
   PUT    /children/{id}
   DELETE /children/{id}
 ```
+
+The production system extends this surface to 21 endpoints across meal catalog, allergy filtering, and ordering workflows.
 
 ---
 
@@ -228,14 +228,12 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Running at `http://localhost:8000`  
+Running at `http://localhost:8000`
 Swagger UI at `http://localhost:8000/docs`
 
 ---
 
 ## Testing
-
-Manual validation is currently supported through Swagger UI.
 
 Key behaviors to verify before considering any endpoint stable:
 
@@ -244,7 +242,7 @@ Key behaviors to verify before considering any endpoint stable:
 - Soft-deleted children are excluded from all list responses
 - Expired or malformed tokens are rejected outright
 
-Automated test coverage via `pytest` and `FastAPI TestClient` is planned for Phase 2.
+The production system holds 92% line / 84% branch server coverage; this replica carries a scoped-down suite covering the auth and ownership boundaries above.
 
 ---
 
@@ -252,19 +250,20 @@ Automated test coverage via `pytest` and `FastAPI TestClient` is planned for Pha
 
 The project intentionally defers machine learning.
 
-**Correctness before intelligence.**  
-**Safety before automation.**  
+**Correctness before intelligence.**
+**Safety before automation.**
 **Contracts before features.**
 
-A recommendation engine is only as trustworthy as the data it consumes. MEDKids OrderUp ensures that data is worth trusting before asking a model to reason over it.
+A recommendation engine is only as trustworthy as the data it consumes. MedKids OrderUp ensures that data is worth trusting before asking a model to reason over it.
 
 ---
 
-## Not Implemented Yet
+## Not In This Replica
 
-- Meal catalog
+- Meal catalog and ordering workflows
+- Allergen normalization engine
 - Recommendation engine
-- External delivery integrations
+- Python AI service
 - Admin management panel
 - Production deployment configuration
 
